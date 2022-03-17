@@ -43,12 +43,22 @@ func newFakeEnabler(fnEnable, fnDisable func()) *fakeEnabler {
 }
 
 // Enable enables the underlying feature.
-func (f *fakeEnabler) Enable() { f.fnEnable() }
+func (f *fakeEnabler) Enable() {
+	if f.fnEnable == nil {
+		f.fnEnable = f.noEnable
+	}
+	f.fnEnable()
+}
 
 // Disable disables the underlying feature and
 // may be used with a defer statement
 // immediately after a call to Enable()
-func (f *fakeEnabler) Disable() { f.fnDisable() }
+func (f *fakeEnabler) Disable() {
+	if f.fnDisable == nil {
+		f.fnDisable = f.noDisable
+	}
+	f.fnDisable()
+}
 
 // noEnable is a default Nop method used when
 // either Enable or Disabler is unavailable

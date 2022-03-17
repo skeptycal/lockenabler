@@ -1,21 +1,35 @@
 package lockenabler
 
+import (
+	"math/rand"
+	"time"
+)
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 type LockEnabler interface {
 	Locker
 	Enabler
 }
 
-func NewLockEnabler(en *fakeEnabler, lk *fakeLocker) LockEnabler { return &lockEnabler{en, lk} }
+func AddLockEnabler() LockEnabler {
+	return fakeLockEnabler()
+}
+
+func fakeLockEnabler() *lockEnabler {
+	le := lockEnabler{}
+	le.fakeEnabler = newFakeEnabler(nil, nil)
+	le.fakeLocker = newFakeLocker(nil, nil)
+	return &le
+}
+
+func NewLockEnabler(en *fakeEnabler, lk *locker) LockEnabler {
+	return &lockEnabler{en, lk}
+}
 
 type lockEnabler struct {
 	*fakeEnabler
-	*fakeLocker
+	*locker
 }
-
-// func (f *lockEnabler) Lock()   { f.fnLock() }
-// func (f *lockEnabler) Unlock() { f.fnUnlock() }
-
-// func (*lockEnabler) noEnable()  {}
-// func (*lockEnabler) noDisable() {}
-// func (*lockEnabler) noLock()    {}
-// func (*lockEnabler) noUnlock()  {}
