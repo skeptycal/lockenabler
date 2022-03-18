@@ -8,6 +8,5 @@ type LockEnableWriter interface{ ... }
     func NewLockEnableWriter(w ioWriter) LockEnableWriter
 type LockEnabler interface{ ... }
     func NewLockEnabler() LockEnabler
-    func NewMutexWrap() LockEnabler
 type Locker = sync.Locker
 type MutexWrap struct{ ... }
