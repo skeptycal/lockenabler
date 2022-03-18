@@ -1,19 +1,18 @@
 package lockenabler // import "github.com/skeptycal/lockenabler"
 
+func DefaultNopWriter(w io.Writer) io.Writer
 type Enabler interface{ ... }
     func AddEnabler(fnEnable, fnDisable func()) Enabler
-type LenWriter struct{}
 type LockEnableWriter interface{ ... }
-    func NewEnablerWriter(w io.Writer) LockEnableWriter
-    func NewWrapWriter(w io.Writer) LockEnableWriter
+    var DiscardWriter LockEnableWriter = NewLockEnableWriter(io.Discard) ...
+    func NewLockEnableWriter(w io.Writer) LockEnableWriter
 type LockEnabler interface{ ... }
-    func AddLockEnabler() LockEnabler
-    func NewLockEnabler(en *fakeEnabler, lk *locker) LockEnabler
-type Locker interface{ ... }
-    func AddLocker(fnLock, fnUnlock func()) Locker
-type MutexEnable struct{ ... }
-type MutexEnabler interface{ ... }
+    func NewLockEnabler() LockEnabler
+    func NewMutexWrap() LockEnabler
+type LockEnablerWriter interface{ ... }
+type Locker = sync.Locker
 type MutexWrap struct{ ... }
-type NopWriter struct{}
+type MutexWrapWriter interface{ ... }
+    func NewWrapWriter(w io.Writer) MutexWrapWriter
 type StringWriter interface{ ... }
 type Writer interface{ ... }
