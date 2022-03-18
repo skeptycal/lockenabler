@@ -1,67 +1,51 @@
 package lockenabler
 
 import (
+	"errors"
 	"io"
-	"sync"
 )
 
 /// modified logrus.MutexWrap for testing purposes
 // removed boolean flag and replaced with different functions
 
-func NewEnablerWriter(w io.Writer) LockEnableWriter {
-	if w == nil {
-		w = io.Discard
+type (
+	LockEnablerWriter interface {
+		LockEnabler
+		io.Writer
 	}
 
-	mw := mutexEnableWriter{}
-	mw.mu = &sync.Mutex{}
-	mw.Writer = w
-	mw.Enable()
-	return &mw
-}
-
-type mutexEnableWriter struct {
-	MutexEnable
-	io.Writer
-}
-
-// TODO: for testing purposes
-func (mw *mutexEnableWriter) Write(b []byte) (n int, err error) {
-	if mw.Writer == nil {
-		return 0, nil
+	lockEnableWriter struct {
+		LockEnabler
+		io.Writer
 	}
-	return mw.Writer.Write(b)
+)
+
+func NewLockEnableWriter(w io.Writer) LockEnableWriter {
+	return &lockEnableWriter{NewLockEnabler(), DefaultNopWriter(nil)}
 }
 
-type MutexEnabler interface {
-	Locker
-	Enabler
-}
+// Write writes b to the underlying writer,
+// returning the number of bytes written and
+// any error encountered.
+//
+// If the underlying writer is nil, no further
+// processing is done, len(b) and an error are
+// returned to maintain consistency with io.Writer.
+//
+// If the lockEnableWriter is disabled, 0
+// and an error are returned. (this feature
+// is not yet implemented.)
+func (lew *lockEnableWriter) Write(b []byte) (n int, err error) {
 
-type MutexEnable struct {
-	mu       *sync.Mutex
-	fnLock   func()
-	fnUnlock func()
-}
+	// TODO: check for disabled writer??
+	// if v, ok := lew.LockEnabler.(*locker); ok {
+	// 	if v.fnLock == v.noLock {
+	// 		return 0, errors.New("LockEnableWriter is disabled")
+	// 	}
+	// }
 
-func (mw *MutexEnable) Lock()   { mw.fnLock() }
-func (mw *MutexEnable) Unlock() { mw.fnUnlock() }
-
-func (mw *MutexEnable) yesLock()   { mw.mu.Lock() }
-func (mw *MutexEnable) yesUnlock() { mw.mu.Unlock() }
-func (mw *MutexEnable) noLock()    {}
-func (mw *MutexEnable) noUnlock()  {}
-
-func (mw *MutexEnable) Disable() {
-	mw.mu.Lock()
-	defer mw.mu.Unlock()
-	mw.fnLock = mw.noLock
-	mw.fnUnlock = mw.noUnlock
-}
-
-func (mw *MutexEnable) Enable() {
-	mw.mu.Lock()
-	defer mw.mu.Unlock()
-	mw.fnLock = mw.yesLock
-	mw.fnUnlock = mw.yesUnlock
+	if lew.Writer == nil {
+		return len(b), errors.New("writer is nil")
+	}
+	return lew.Writer.Write(b)
 }
