@@ -4,22 +4,18 @@ import (
 	"errors"
 	"io"
 	"sync"
-
-	"github.com/sirupsen/logrus"
 )
 
 /// copy of MutexWrap from logrus for testing purposes
 
 type (
-	mutexWrap = logrus.MutexWrap
+	mutexWrapperWriter = LockEnableWriter
+
+	// Reference: mutexWrap = logrus.MutexWrap
 
 	MutexWrap struct {
 		mu       *sync.Mutex
 		disabled bool
-	}
-
-	MutexWrapWriter interface {
-		LockEnableWriter
 	}
 
 	mutexWrapWriter struct {
@@ -28,7 +24,7 @@ type (
 	}
 )
 
-func NewWrapWriter(w io.Writer) MutexWrapWriter {
+func NewWrapWriter(w ioWriter) mutexWrapperWriter {
 
 	if w == nil {
 		w = io.Discard
@@ -37,11 +33,11 @@ func NewWrapWriter(w io.Writer) MutexWrapWriter {
 	mw := mutexWrapWriter{}
 	mw.mu = &sync.Mutex{}
 	mw.disabled = true
-	mw.Writer = w
+	mw.ioWriter = w
 	return &mw
 }
 
-func NewMutexWrap() LockEnabler {
+func newMutexWrap() LockEnabler {
 	return &MutexWrap{}
 }
 
@@ -60,10 +56,10 @@ func (mw *mutexWrapWriter) Write(b []byte) (n int, err error) {
 		return 0, errors.New("mutex writer disabled")
 	}
 
-	if mw.Writer == nil {
+	if mw.ioWriter == nil {
 		return len(b), errors.New("mutex writer is nil")
 	}
-	return mw.Writer.Write(b)
+	return mw.ioWriter.Write(b)
 }
 
 /// implement LockEnabler

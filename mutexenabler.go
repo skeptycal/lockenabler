@@ -2,26 +2,24 @@ package lockenabler
 
 import (
 	"errors"
-	"io"
 )
 
 /// modified logrus.MutexWrap for testing purposes
 // removed boolean flag and replaced with different functions
 
 type (
-	LockEnablerWriter interface {
-		LockEnabler
-		io.Writer
-	}
+
+	// MutexEnableWriter is an alias for LockEnablerWriter
+	// MutexEnableWriter = LockEnablerWriter
 
 	lockEnableWriter struct {
 		LockEnabler
-		io.Writer
+		ioWriter
 	}
 )
 
-func NewLockEnableWriter(w io.Writer) LockEnableWriter {
-	return &lockEnableWriter{NewLockEnabler(), DefaultNopWriter(nil)}
+func NewLockEnableWriter(w ioWriter) LockEnableWriter {
+	return &lockEnableWriter{NewLockEnabler(), defaultNopWriter(nil)}
 }
 
 // Write writes b to the underlying writer,
@@ -44,8 +42,8 @@ func (lew *lockEnableWriter) Write(b []byte) (n int, err error) {
 	// 	}
 	// }
 
-	if lew.Writer == nil {
+	if lew.ioWriter == nil {
 		return len(b), errors.New("writer is nil")
 	}
-	return lew.Writer.Write(b)
+	return lew.ioWriter.Write(b)
 }

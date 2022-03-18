@@ -1,18 +1,18 @@
 package lockenabler
 
 type (
-	// Writer implements io.Writer
-	Writer interface {
+	LockEnableWriter interface {
+		LockEnabler
+		ioWriter
+	}
+
+	// ioWriter implements io.ioWriter
+	ioWriter interface {
 		Write(p []byte) (n int, err error)
 	}
 
-	// StringWriter implements io.StringWriter
-	StringWriter interface {
+	// ioStringWriter implements io.ioStringWriter
+	ioStringWriter interface {
 		WriteString(string) (n int, err error)
-	}
-
-	LockEnableWriter interface {
-		LockEnabler
-		Writer
 	}
 )

@@ -3,12 +3,12 @@ package lockenabler
 import "io"
 
 var (
-	DiscardWriter LockEnableWriter = NewLockEnableWriter(io.Discard)
-	NopWriter     LockEnableWriter = NewLockEnableWriter(nopWriter{})
-	LenWriter     LockEnableWriter = NewLockEnableWriter(lenWriter{})
+	discardLEWriter LockEnableWriter = NewLockEnableWriter(io.Discard)
+	nopLEWriter     LockEnableWriter = NewLockEnableWriter(nopWriter{})
+	lenLEWriter     LockEnableWriter = NewLockEnableWriter(lenWriter{})
 )
 
-func DefaultNopWriter(w io.Writer) io.Writer {
+func defaultNopWriter(w ioWriter) ioWriter {
 	if w == nil {
 		return io.Discard
 	}
