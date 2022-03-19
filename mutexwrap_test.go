@@ -15,8 +15,8 @@ var writerTestList = []struct {
 	{"mutexWrapWriter", NewWrapWriter(io.Discard)},
 	{"mutexEnablerWriter", NewLockEnableWriter(io.Discard)},
 
-	{"nopWriter", nopLEWriter},
-	{"lenWriter", lenLEWriter},
+	{"nopWriter", nopWriter},
+	{"lenWriter", lenWriter},
 	// {"os.Stderr", os.Stderr},
 }
 
