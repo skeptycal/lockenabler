@@ -5,7 +5,9 @@ func NewWrapWriter(w ioWriter) mutexWrapperWriter
 type Enabler interface{ ... }
     func AddEnabler(fnEnable, fnDisable func()) Enabler
 type LockEnableWriter interface{ ... }
+    func LenWriter(w ioWriter) LockEnableWriter
     func NewLockEnableWriter(w ioWriter) LockEnableWriter
+    func NopWriter(w io.Writer) LockEnableWriter
 type LockEnabler interface{ ... }
     func NewLockEnabler() LockEnabler
 type Locker = sync.Locker
