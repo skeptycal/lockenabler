@@ -1,4 +1,4 @@
-package lockenabler
+package mutexwrap
 
 import (
 	"crypto/rand"
@@ -6,17 +6,19 @@ import (
 	"io"
 	mathrand "math/rand"
 	"testing"
+
+	. "github.com/skeptycal/lockenabler/writers"
 )
 
 var writerTestList = []struct {
 	name string
 	w    LockEnableWriter
 }{
-	{"mutexWrapWriter", NewWrapWriter(io.Discard)},
+	{"mutexWrapWriter", NewMutexWrapWriter(io.Discard)},
 	{"mutexEnablerWriter", NewLockEnableWriter(io.Discard)},
 
-	{"nopWriter", nopWriter},
-	{"lenWriter", lenWriter},
+	{"nopWriter", NopWriter(nil)},
+	{"lenWriter", LenWriter(nil)},
 	// {"os.Stderr", os.Stderr},
 }
 

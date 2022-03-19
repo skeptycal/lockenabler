@@ -1,6 +1,39 @@
-package lockenabler
+package locker
 
-import "sync"
+import (
+	"math/rand"
+	"sync"
+	"time"
+
+	enabler "github.com/skeptycal/lockenabler/enabler"
+)
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+// NewLocker implements sync.Locker by using
+// the given Lock and Unlock methods. If
+// either of these is nil, then the default
+// implementation, a Nop, is used.
+//
+// This may be used to add Locker functionality
+// to structures that do not implement the
+// interface natively.
+//
+// The default implementation is an unlocked,
+// enabled sync.Mutex with Lock() and Unlock()
+// pointing to its underlying methods of the
+// same names.
+func NewLocker() LockEnabler {
+	f := &locker{
+		mu: new(sync.Mutex),
+	}
+	f.SetLockFuncs(nil, nil)
+	f.SetEnableFuncs(nil, nil)
+	f.Enable()
+	return f
+}
 
 type (
 	// A Locker represents an object that can be locked
@@ -26,7 +59,23 @@ type (
 		fnUnlock   func()      // Unlock()
 		lockFunc   func()      // custom Lock()
 		unlockFunc func()      // custom Unlock()
-		enabler
+		enabler.Enabler
+	}
+
+	// LockEnabler implements sync.Locker and
+	// types.Enabler, basically a Locker that
+	// can be enabled or disabled on demand
+	// to increase performance when mutex
+	// locking is not required.
+	//
+	// LockEnabler implements SetLockFuncs and
+	// SetEnableFuncs as a way to set custom lock,
+	// unlock, enable, and disable functions.
+	LockEnabler interface {
+		Locker
+		enabler.Enabler
+		SetLockFuncs(lockFunc, unlockFunc func())
+		SetEnableFuncs(enableFunc, disableFunc func())
 	}
 )
 

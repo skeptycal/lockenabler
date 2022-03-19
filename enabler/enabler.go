@@ -1,4 +1,4 @@
-package lockenabler
+package enabler
 
 // AddEnabler implements types.Enabler by using
 // the given Enable and Disa ble methods. If
